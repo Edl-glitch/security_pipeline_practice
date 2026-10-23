@@ -1,0 +1,40 @@
+name: Security Practice
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install security scanner
+        run: python -m pip install bandit
+
+      - name: Run tests
+        run: python -m unittest discover -v
+
+      - name: Check code security
+        run: bandit app.py
+
+      - name: Package application
+        run: zip application.zip app.py
+
+      - name: Save package
+        uses: actions/upload-artifact@v7
+        with:
+          name: checked-application
+          path: application.zip
